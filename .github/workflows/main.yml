@@ -1,0 +1,31 @@
+name: Market Report Bot
+
+on:
+  schedule:
+    - cron: "*/5 2-8 * * 1-5"  # Every 5 minutes from 9:00-15:00 VN time (UTC+7), Monday-Friday
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  send-market-report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          
+      - name: Run market report bot
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
+          PCT_ALERT_UP: "3.0"
+          PCT_ALERT_DOWN: "-3.0"
+          VOL_SURGE_MULT: "2.0"
+        run: python bot.py
